@@ -1,0 +1,193 @@
+// Version: 3.0.0
+type AdjustmentType__651004482 =
+  {#damage; #receivedFromPO; #recount; #remove; #restock; #return_; #sale};
+type Data__791452850<K, V> =
+  {var count : Nat__490723111; kvs : [var ?(K, V)]};
+type Internal__8484328<K, V> =
+  {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
+type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
+type List__415060402<T> = List__790383201<T>;
+type List__790383201<T> =
+  {
+    var blockIndex : Nat__490723111;
+    var blocks : [var [var ?T]];
+    var elementIndex : Nat__490723111
+  };
+type Map__158565046<K, V> = Map__297112838<K, V>;
+type Map__297112838<K, V> =
+  {var root : Node__46230540<K, V>; var size : Nat__490723111};
+type Map__605269027<K, V> = Map__158565046<K, V>;
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__46230540<K, V> =
+  {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
+type OldAdjustmentType__253093980 = {#remove; #restock};
+type OldProductInternal__893753740 =
+  {
+    var category : Text;
+    var description : Text;
+    id : Nat;
+    var lastModified : Int;
+    var lowStockThreshold : ?Nat;
+    var name : Text;
+    var price : Nat;
+    var quantity : Nat;
+    var sku : Text
+  };
+type OldStockHistoryEntry__1057418287 =
+  {
+    adjustmentType : OldAdjustmentType__253093980;
+    id : Nat;
+    note : ?Text;
+    productId : Nat;
+    quantity : Nat;
+    timestamp : Int
+  };
+type POId__908276723 = Nat;
+type POLineItemInternal__833010884 =
+  {
+    orderedQty : Nat;
+    productId : ProductId__745815893;
+    productName : Text;
+    productSku : Text;
+    var receivedQty : Nat;
+    unitCostPrice : Nat
+  };
+type POStatus__490486141 =
+  {#cancelled; #draft; #partiallyReceived; #received; #sent};
+type ProductId__160010635 = Nat;
+type ProductId__6435572 = ProductId__160010635;
+type ProductId__745815893 = ProductId__160010635;
+type ProductInternal__551325612 =
+  {
+    var barcode : ?Text;
+    var category : Text;
+    var costPrice : Nat;
+    var description : Text;
+    id : ProductId__6435572;
+    var lastModified : Timestamp__288252184;
+    var lowStockThreshold : ?Nat;
+    var name : Text;
+    var price : Nat;
+    var quantity : Nat;
+    var reorderQuantity : Nat;
+    var sellingPrice : Nat;
+    var sku : Text;
+    var supplierId : ?SupplierId__927296573;
+    var unitOfMeasure : Text
+  };
+type PurchaseOrderInternal__228964779 =
+  {
+    createdAt : Timestamp__411763434;
+    var expectedDeliveryDate : ?Int;
+    id : POId__908276723;
+    lineItems : [POLineItemInternal__833010884];
+    var notes : ?Text;
+    var status : POStatus__490486141;
+    supplierId : SupplierId__968223429;
+    var supplierName : Text;
+    var totalAmount : Nat;
+    var updatedAt : Timestamp__411763434
+  };
+type StockHistoryEntry__403027874 =
+  {
+    adjustmentType : AdjustmentType__651004482;
+    id : Nat;
+    note : ?Text;
+    notes : ?Text;
+    productId : ProductId__6435572;
+    quantity : Nat;
+    timestamp : Timestamp__288252184
+  };
+type SupplierId__1029492484 = Nat;
+type SupplierId__322609621 = Nat;
+type SupplierId__927296573 = SupplierId__1029492484;
+type SupplierId__968223429 = Nat;
+type SupplierInternal__756982193 =
+  {
+    address : Text;
+    contactPerson : Text;
+    createdAt : Timestamp__301639476;
+    email : Text;
+    id : SupplierId__322609621;
+    isActive : Bool;
+    name : Text;
+    paymentTerms : Text;
+    phone : Text
+  };
+type Timestamp__288252184 = Timestamp__301639476;
+type Timestamp__301639476 = Int;
+type Timestamp__411763434 = Timestamp__301639476;
+actor ({
+  in _state :
+    {
+      config :
+        {
+          var globalLowStockThreshold : Nat;
+          var nextHistoryId : Nat;
+          var nextProductId : Nat
+        };
+      products : Map__605269027<Nat, OldProductInternal__893753740>;
+      stockHistory : List__415060402<OldStockHistoryEntry__1057418287>
+    };
+  in config :
+    {
+      var globalLowStockThreshold : Nat;
+      var nextHistoryId : Nat;
+      var nextProductId : Nat
+    };
+  in products : Map__605269027<Nat, OldProductInternal__893753740>;
+  in stockHistory : List__415060402<OldStockHistoryEntry__1057418287>
+}, {
+  stable _state :
+    {
+      config :
+        {
+          var globalLowStockThreshold : Nat;
+          var nextHistoryId : Nat;
+          var nextProductId : Nat
+        };
+      products :
+        Map__605269027<ProductId__6435572, ProductInternal__551325612>;
+      stockHistory : List__415060402<StockHistoryEntry__403027874>
+    };
+  stable invConfig :
+    {
+      var globalLowStockThreshold : Nat;
+      var nextHistoryId : Nat;
+      var nextProductId : Nat
+    };
+  stable poConfig : {var nextPOId : Nat};
+  stable products :
+    {
+      var root :
+        Node__46230540<ProductId__6435572, ProductInternal__551325612>;
+      var size : Nat__490723111
+    };
+  stable purchaseOrders :
+    {
+      var root :
+        Node__46230540<POId__908276723, PurchaseOrderInternal__228964779>;
+      var size : Nat__490723111
+    };
+  stable stockHistory :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?StockHistoryEntry__403027874]];
+      var elementIndex : Nat__490723111
+    };
+  stable supplierConfig : {var nextSupplierId : Nat};
+  stable supplierProducts :
+    {
+      var root :
+        Node__46230540<SupplierId__322609621,
+                        List__415060402<ProductId__160010635>>;
+      var size : Nat__490723111
+    };
+  stable suppliers :
+    {
+      var root :
+        Node__46230540<SupplierId__322609621, SupplierInternal__756982193>;
+      var size : Nat__490723111
+    }
+});

@@ -1,0 +1,262 @@
+type UpdateSupplierArgs = 
+ record {
+   address: opt text;
+   contactPerson: opt text;
+   email: opt text;
+   isActive: opt bool;
+   name: opt text;
+   paymentTerms: opt text;
+   phone: opt text;
+ };
+type UpdateProductArgs = 
+ record {
+   barcode: opt text;
+   category: text;
+   costPrice: nat;
+   description: text;
+   id: ProductId;
+   lowStockThreshold: opt nat;
+   name: text;
+   price: nat;
+   reorderQuantity: nat;
+   sellingPrice: nat;
+   sku: text;
+   supplierId: opt SupplierId;
+   unitOfMeasure: text;
+ };
+type UpdatePOStatusArgs = 
+ record {
+   id: POId;
+   status: POStatus;
+ };
+type Timestamp = int;
+type SupplierId = nat;
+type Supplier = 
+ record {
+   address: text;
+   contactPerson: text;
+   createdAt: Timestamp;
+   email: text;
+   id: SupplierId;
+   isActive: bool;
+   name: text;
+   paymentTerms: text;
+   phone: text;
+ };
+type StockStatus = 
+ variant {
+   inStock;
+   lowStock;
+   outOfStock;
+ };
+type StockHistoryEntry = 
+ record {
+   adjustmentType: AdjustmentType;
+   id: nat;
+   note: opt text;
+   notes: opt text;
+   productId: ProductId;
+   quantity: nat;
+   timestamp: Timestamp;
+ };
+type SortOrder = 
+ variant {
+   asc;
+   desc;
+ };
+type SortField = 
+ variant {
+   lastModified;
+   name;
+   price;
+   quantity;
+   sku;
+ };
+type SearchFilterArgs = 
+ record {
+   searchQuery: opt text;
+   sortField: opt SortField;
+   sortOrder: opt SortOrder;
+   stockStatus: opt StockStatus;
+   supplierId: opt SupplierId;
+ };
+type ReceiveItemArgs = 
+ record {
+   productId: ProductId;
+   receivedQty: nat;
+ };
+type PurchaseOrder = 
+ record {
+   createdAt: Timestamp;
+   expectedDeliveryDate: opt int;
+   id: POId;
+   lineItems: vec POLineItem;
+   notes: opt text;
+   status: POStatus;
+   supplierId: SupplierId;
+   supplierName: text;
+   totalAmount: nat;
+   updatedAt: Timestamp;
+ };
+type ProductId = nat;
+type Product = 
+ record {
+   barcode: opt text;
+   category: text;
+   costPrice: nat;
+   description: text;
+   id: ProductId;
+   lastModified: Timestamp;
+   lowStockThreshold: opt nat;
+   name: text;
+   price: nat;
+   quantity: nat;
+   reorderQuantity: nat;
+   sellingPrice: nat;
+   sku: text;
+   stockStatus: StockStatus;
+   supplierId: opt SupplierId;
+   unitOfMeasure: text;
+ };
+type POStatus = 
+ variant {
+   cancelled;
+   draft;
+   partiallyReceived;
+   received;
+   sent;
+ };
+type POLineItem = 
+ record {
+   orderedQty: nat;
+   productId: ProductId;
+   productName: text;
+   productSku: text;
+   receivedQty: nat;
+   unitCostPrice: nat;
+ };
+type POId = nat;
+type LowStockSummary = 
+ record {
+   currentStock: nat;
+   id: ProductId;
+   name: text;
+   reorderPoint: nat;
+   sku: text;
+ };
+type DashboardMetrics = 
+ record {
+   categories: vec CategorySummary;
+   lowStockCount: nat;
+   lowStockProducts: vec LowStockSummary;
+   pendingPOCount: nat;
+   pendingPOValue: nat;
+   totalInventoryValue: nat;
+   totalProducts: nat;
+ };
+type CreateSupplierArgs = 
+ record {
+   address: text;
+   contactPerson: text;
+   email: text;
+   isActive: bool;
+   name: text;
+   paymentTerms: text;
+   phone: text;
+ };
+type CreateProductArgs = 
+ record {
+   barcode: opt text;
+   category: text;
+   costPrice: nat;
+   description: text;
+   lowStockThreshold: opt nat;
+   name: text;
+   price: nat;
+   quantity: nat;
+   reorderQuantity: nat;
+   sellingPrice: nat;
+   sku: text;
+   supplierId: opt SupplierId;
+   unitOfMeasure: text;
+ };
+type CreatePOLineItemArgs = 
+ record {
+   orderedQty: nat;
+   productId: ProductId;
+   unitCostPrice: nat;
+ };
+type CreatePOArgs = 
+ record {
+   expectedDeliveryDate: opt int;
+   lineItems: vec CreatePOLineItemArgs;
+   notes: opt text;
+   supplierId: SupplierId;
+   supplierName: text;
+ };
+type CategorySummary = 
+ record {
+   category: text;
+   productCount: nat;
+   totalValue: nat;
+ };
+type AdjustmentType = 
+ variant {
+   damage;
+   receivedFromPO;
+   recount;
+   remove;
+   restock;
+   return;
+   sale;
+ };
+type AdjustStockArgs = 
+ record {
+   adjustmentType: AdjustmentType;
+   note: opt text;
+   productId: ProductId;
+   quantity: nat;
+ };
+service : {
+  adjustStock: (args: AdjustStockArgs) -> (variant {
+                                             err: text;
+                                             ok: Product;
+                                           });
+  cancelPO: (id: POId) -> (opt PurchaseOrder);
+  createPO: (args: CreatePOArgs) -> (PurchaseOrder);
+  createProduct: (args: CreateProductArgs) ->
+   (variant {
+      err: text;
+      ok: Product;
+    });
+  createSupplier: (args: CreateSupplierArgs) -> (Supplier);
+  deleteProduct: (id: ProductId) -> (variant {
+                                       err: text;
+                                       ok;
+                                     });
+  deleteSupplier: (id: SupplierId) -> (bool);
+  getDashboardMetrics: () -> (DashboardMetrics) query;
+  getGlobalLowStockThreshold: () -> (nat) query;
+  getPO: (id: POId) -> (opt PurchaseOrder) query;
+  getPOsBySupplier: (supplierId: SupplierId) -> (vec PurchaseOrder) query;
+  getProduct: (id: ProductId) -> (opt Product) query;
+  getStockHistory: (productId: opt ProductId) ->
+   (vec StockHistoryEntry) query;
+  getSupplier: (id: SupplierId) -> (opt Supplier) query;
+  getSupplierProducts: (id: SupplierId) -> (vec ProductId) query;
+  listPOs: (statusFilter: opt POStatus) -> (vec PurchaseOrder) query;
+  listProducts: () -> (vec Product) query;
+  listSuppliers: (isActiveFilter: opt bool) -> (vec Supplier) query;
+  receivePO: (id: POId, receivedItems: vec ReceiveItemArgs) ->
+   (opt PurchaseOrder);
+  searchProducts: (args: SearchFilterArgs) -> (vec Product) query;
+  setGlobalLowStockThreshold: (threshold: nat) -> ();
+  updatePOStatus: (args: UpdatePOStatusArgs) -> (opt PurchaseOrder);
+  updateProduct: (args: UpdateProductArgs) ->
+   (variant {
+      err: text;
+      ok: Product;
+    });
+  updateSupplier: (id: SupplierId, args: UpdateSupplierArgs) ->
+   (opt Supplier);
+}

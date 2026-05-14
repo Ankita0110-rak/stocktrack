@@ -1,0 +1,24 @@
+{
+  "overview": "A comprehensive retail inventory management system designed for hypermarket chains like DMart. Manage products across all retail categories, track suppliers and vendors, create and receive purchase orders, monitor stock levels with low-stock alerts, and view retail dashboards with key metrics — all in one place.",
+  "features": [
+    "Multi-category product catalog (Groceries, Personal Care, Electronics, Apparel, and more)",
+    "Supplier & vendor directory with contact management",
+    "Purchase order creation, tracking, and receiving (auto-updates stock)",
+    "Low stock alerts with configurable reorder points per product",
+    "Stock audit trail with adjustment types (received, return, damage, recount)",
+    "Retail dashboard with total SKUs, inventory value, pending POs, and category breakdown",
+    "Unit of measure support (kg, liters, units, packs, boxes, cartons)",
+    "Cost price, selling price, and margin tracking per product"
+  ],
+  "category": "productivity",
+  "tags": [
+    "inventory",
+    "retail",
+    "hypermarket",
+    "purchase-orders",
+    "suppliers",
+    "stock-management",
+    "dmart"
+  ],
+  "last_updated": "2026-05-13T17:08:25.021Z"
+}
