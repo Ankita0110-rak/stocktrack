@@ -357,9 +357,9 @@ export default function Products() {
                       </Link>
                       <Button
                         type="button"
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
-                        className="h-7 px-2 text-xs gap-1 text-destructive hover:text-destructive"
+                        className="h-7 px-2 text-xs gap-1 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
                         onClick={() => handleDelete(p.id, p.name)}
                         data-ocid={`products.delete_button.${idx + 1}`}
                       >

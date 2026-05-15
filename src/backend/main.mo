@@ -8,9 +8,9 @@ import InventoryApi "mixins/inventory-api";
 import SuppliersApi "mixins/suppliers-api";
 import PurchaseOrdersApi "mixins/purchase-orders-api";
 import InventoryLib "lib/inventory";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   // ── Inventory state ───────────────────────────────────────────────────────
   let products = Map.empty<InvTypes.ProductId, InvTypes.ProductInternal>();

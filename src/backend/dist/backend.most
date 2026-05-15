@@ -1,4 +1,4 @@
-// Version: 3.0.0
+// Version: 1.0.0
 type AdjustmentType__651004482 =
   {#damage; #receivedFromPO; #recount; #remove; #restock; #return_; #sale};
 type Data__791452850<K, V> =
@@ -21,28 +21,6 @@ type Nat__490723111 = Nat__920180692;
 type Nat__920180692 = Nat;
 type Node__46230540<K, V> =
   {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
-type OldAdjustmentType__253093980 = {#remove; #restock};
-type OldProductInternal__893753740 =
-  {
-    var category : Text;
-    var description : Text;
-    id : Nat;
-    var lastModified : Int;
-    var lowStockThreshold : ?Nat;
-    var name : Text;
-    var price : Nat;
-    var quantity : Nat;
-    var sku : Text
-  };
-type OldStockHistoryEntry__1057418287 =
-  {
-    adjustmentType : OldAdjustmentType__253093980;
-    id : Nat;
-    note : ?Text;
-    productId : Nat;
-    quantity : Nat;
-    timestamp : Int
-  };
 type POId__908276723 = Nat;
 type POLineItemInternal__833010884 =
   {
@@ -118,27 +96,7 @@ type SupplierInternal__756982193 =
 type Timestamp__288252184 = Timestamp__301639476;
 type Timestamp__301639476 = Int;
 type Timestamp__411763434 = Timestamp__301639476;
-actor ({
-  in _state :
-    {
-      config :
-        {
-          var globalLowStockThreshold : Nat;
-          var nextHistoryId : Nat;
-          var nextProductId : Nat
-        };
-      products : Map__605269027<Nat, OldProductInternal__893753740>;
-      stockHistory : List__415060402<OldStockHistoryEntry__1057418287>
-    };
-  in config :
-    {
-      var globalLowStockThreshold : Nat;
-      var nextHistoryId : Nat;
-      var nextProductId : Nat
-    };
-  in products : Map__605269027<Nat, OldProductInternal__893753740>;
-  in stockHistory : List__415060402<OldStockHistoryEntry__1057418287>
-}, {
+actor {
   stable _state :
     {
       config :
@@ -190,4 +148,4 @@ actor ({
         Node__46230540<SupplierId__322609621, SupplierInternal__756982193>;
       var size : Nat__490723111
     }
-});
+};

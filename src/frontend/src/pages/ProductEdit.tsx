@@ -1,4 +1,15 @@
 import { Layout } from "@/components/Layout";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,11 +23,13 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  useDeleteProduct,
   useGetProduct,
   useListSuppliers,
   useUpdateProduct,
 } from "@/hooks/use-backend";
 import { useParams, useRouter } from "@tanstack/react-router";
+import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -39,7 +52,28 @@ export default function ProductEdit() {
   const router = useRouter();
   const { data: product, isLoading } = useGetProduct(id);
   const updateProduct = useUpdateProduct();
+  const deleteProduct = useDeleteProduct();
   const { data: suppliers } = useListSuppliers(null);
+
+  async function handleDelete() {
+    try {
+      await deleteProduct.mutateAsync(id);
+      toast.success(`"${product?.name}" deleted.`);
+      router.navigate({
+        to: "/products",
+        search: {
+          query: "",
+          status: "all",
+          sortField: "name",
+          sortOrder: "asc",
+          category: "all",
+          supplierId: "all",
+        },
+      });
+    } catch {
+      toast.error("Failed to delete product.");
+    }
+  }
 
   const [form, setForm] = useState({
     sku: "",
@@ -451,6 +485,43 @@ export default function ProductEdit() {
             >
               Cancel
             </Button>
+            <div className="flex-1" />
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                  data-ocid="product-edit.delete_button"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Delete Product
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent data-ocid="product-edit.delete.dialog">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Product?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete{" "}
+                    <strong>{product?.name}</strong> and all its stock history.
+                    This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel data-ocid="product-edit.delete.cancel_button">
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    data-ocid="product-edit.delete.confirm_button"
+                  >
+                    {deleteProduct.isPending ? "Deleting…" : "Delete Product"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </form>
       </div>

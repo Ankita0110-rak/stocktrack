@@ -1,6 +1,17 @@
 import { AdjustmentType } from "@/backend";
 import { Layout } from "@/components/Layout";
 import { StockBadge } from "@/components/StockBadge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,12 +26,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import {
   useAdjustStock,
+  useDeleteProduct,
   useGetProduct,
   useGetSupplier,
   useStockHistory,
 } from "@/hooks/use-backend";
-import { Link, useParams } from "@tanstack/react-router";
-import { Package, Pencil, ShoppingCart, TrendingUp } from "lucide-react";
+import { Link, useNavigate, useParams } from "@tanstack/react-router";
+import {
+  Package,
+  Pencil,
+  ShoppingCart,
+  Trash2,
+  TrendingUp,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -65,11 +83,33 @@ const HISTORY_STYLE: Record<AdjustmentType, string> = {
 export default function ProductDetail() {
   const { productId } = useParams({ from: "/products/$productId" });
   const id = BigInt(productId);
+  const navigate = useNavigate();
 
   const { data: product, isLoading } = useGetProduct(id);
   const { data: history, isLoading: historyLoading } = useStockHistory(id);
   const adjustStock = useAdjustStock();
+  const deleteProduct = useDeleteProduct();
   const { data: supplier } = useGetSupplier(product?.supplierId ?? null);
+
+  async function handleDelete() {
+    try {
+      await deleteProduct.mutateAsync(id);
+      toast.success(`"${product?.name}" deleted.`);
+      navigate({
+        to: "/products",
+        search: {
+          query: "",
+          status: "all",
+          sortField: "name",
+          sortOrder: "asc",
+          category: "all",
+          supplierId: "all",
+        },
+      });
+    } catch {
+      toast.error("Failed to delete product.");
+    }
+  }
 
   const [adjQty, setAdjQty] = useState("");
   const [adjNote, setAdjNote] = useState("");
@@ -214,6 +254,41 @@ export default function ProductDetail() {
                 Edit
               </Button>
             </Link>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                  data-ocid="product-detail.delete_button"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Delete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent data-ocid="product-detail.delete.dialog">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Product?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete <strong>{product.name}</strong>{" "}
+                    and all its stock history. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel data-ocid="product-detail.delete.cancel_button">
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    data-ocid="product-detail.delete.confirm_button"
+                  >
+                    {deleteProduct.isPending ? "Deleting…" : "Delete Product"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
 
